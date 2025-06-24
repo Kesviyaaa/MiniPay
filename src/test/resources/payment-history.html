@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MiniPay - Payment History</title>
+</head>
+<body>
+  <h2>🔍 Payment History</h2>
+
+  <label for="token">JWT Token:</label>
+  <input type="text" id="token" placeholder="Paste JWT token here" style="width: 400px;">
+  <button onclick="loadHistory()">Get History</button>
+
+  <br><br>
+  <table border="1" cellpadding="10">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Status</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody id="historyTable">
+      <!-- Rows will be added dynamically -->
+    </tbody>
+  </table>
+
+  <script>
+    async function loadHistory() {
+      const token = document.getElementById('token').value;
+
+      const response = await fetch("http://localhost:8097/api/payment/history", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      const table = document.getElementById('historyTable');
+      table.innerHTML = ""; // clear existing
+
+      data.forEach(entry => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>₹${entry.amount}</td>
+          <td>${entry.method}</td>
+          <td>${entry.status}</td>
+          <td>${new Date(entry.timestamp).toLocaleString()}</td>
+        `;
+        table.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>

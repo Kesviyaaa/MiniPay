@@ -1,0 +1,39 @@
+package com.minipay.controller;
+
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/checkout")
+public class CheckoutController {
+
+    @PostMapping("/create-session")
+    public String createCheckoutSession() throws Exception {
+        SessionCreateParams params = SessionCreateParams.builder()
+            .setMode(SessionCreateParams.Mode.PAYMENT)
+            .setSuccessUrl("https://example.com/success")
+            .setCancelUrl("https://example.com/cancel")
+            .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+            .addLineItem(
+                SessionCreateParams.LineItem.builder()
+                    .setQuantity(1L)
+                    .setPriceData(
+                        SessionCreateParams.LineItem.PriceData.builder()
+                            .setCurrency("inr")
+                            .setUnitAmount(5000L) // ₹50
+                            .setProductData(
+                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                    .setName("MiniPay Wallet Top-up")
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+            .build();
+
+        Session session = Session.create(params);
+        return session.getUrl(); // redirect user to Stripe payment page
+    }
+}
